@@ -9,7 +9,7 @@ MT4（XM口座）のトレードデータを自動取得して可視化するWeb
 
 ## 技術スタック
 
-- **フロントエンド**：React + Vite + TailwindCSS + shadcn/ui + Recharts
+- **フロントエンド**：React + Vite + TypeScript + TailwindCSS + shadcn/ui + Recharts
 - **バックエンド**：Python + FastAPI + SQLAlchemy + Pydantic
 - **データベース**：PostgreSQL（Supabase）
 - **MT4連携**：MQL4のEA → FastAPI WebhookでHTTP送信
@@ -29,7 +29,8 @@ trade-manager/
 │   │   ├── pages/         # 各ページ
 │   │   └── hooks/         # カスタムフック
 │   ├── index.html
-│   └── vite.config.js
+│   ├── vite.config.ts
+│   └── tsconfig.json
 └── backend/
     ├── main.py            # エントリーポイント
     ├── routers/           # APIのルーティング
@@ -43,6 +44,7 @@ trade-manager/
 ## コーディング規則
 
 - Pythonのフォーマットはblackを使用
+- フロントエンドは TypeScript（`.ts` / `.tsx`）で記述する
 - Reactは関数コンポーネントで統一
 - 変数名・関数名は英語で記述
 - コメントは日本語でOK
