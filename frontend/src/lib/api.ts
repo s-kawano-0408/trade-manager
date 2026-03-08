@@ -52,3 +52,10 @@ export const deleteDiary = async (id: number) => {
   if (!response.ok) throw new Error("削除に失敗しました");
   return response.json();
 };
+
+// トレード一覧を取得する
+export const getTrades = async () => {
+  const response = await fetch(`${BASE_URL}/api/trades/`);
+  if (!response.ok) throw new Error("取得に失敗しました");
+  return response.json();
+};
