@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DiaryEntry } from "../types";
+import { getDiaries, createDiary, updateDiary, deleteDiary } from "../lib/api";
 import {
   Card,
   CardContent,
@@ -32,45 +33,6 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, CalendarIcon } from "lucide-react";
 
-// モックデータ（ダミーの日記データ）
-const initialDiaries: DiaryEntry[] = [
-  {
-    id: 1,
-    date: "2026-03-07",
-    market_comment:
-      "NFP前で慎重にトレードできた。午前中のレンジで3回スキャル成功。",
-    mental_state: "good",
-    reflection:
-      "指標直前にポジションを持ちかけた。ルール通り見送れたのは良かった。",
-    next_day_plan: "週末なのでノートレード。来週の指標を確認しておく。",
-    created_at: "2026-03-07T20:00:00",
-    updated_at: "2026-03-07T20:00:00",
-  },
-  {
-    id: 2,
-    date: "2026-03-06",
-    market_comment:
-      "レンジ相場が続いて方向感がなかった。無理にエントリーして負けが増えた。",
-    mental_state: "bad",
-    reflection:
-      "レンジだと気づいた時点でやめるべきだった。3連敗後にロットを上げたのは最悪。",
-    next_day_plan: "明日はNFP前日なので慎重に。午前中だけに絞る。",
-    created_at: "2026-03-06T21:00:00",
-    updated_at: "2026-03-06T21:00:00",
-  },
-  {
-    id: 3,
-    date: "2026-03-05",
-    market_comment:
-      "FOMC議事録の日。午前中はきれいなトレンドが出て取りやすかった。",
-    mental_state: "normal",
-    reflection:
-      "午後にFOMC警戒でスプレッドが広がったのに気づかずエントリーした。",
-    next_day_plan: "イベント前はスプレッドを確認してからエントリーする。",
-    created_at: "2026-03-05T20:30:00",
-    updated_at: "2026-03-05T20:30:00",
-  },
-];
 
 // メンタル状態の表示設定
 const mentalConfig = {
@@ -90,7 +52,12 @@ const emptyForm = {
 
 const TradeDiary = () => {
   // 日記データの状態管理
-  const [diaries, setDiaries] = useState<DiaryEntry[]>(initialDiaries);
+  const [diaries, setDiaries] = useState<DiaryEntry[]>([]);
+
+  // 画面が開いたとき、APIから日記一覧を取得する
+  useEffect(() => {
+    getDiaries().then((data) => setDiaries(data));
+  }, []);
 
   // ダイアログの開閉状態
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -126,26 +93,15 @@ const TradeDiary = () => {
   };
 
   // --- フォームの保存ボタンを押したとき ---
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editingId === null) {
-      // 新規作成
-      const newDiary: DiaryEntry = {
-        id: Date.now(),
-        ...form,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      setDiaries([newDiary, ...diaries]);
+      await createDiary(form);
     } else {
-      // 更新
-      setDiaries(
-        diaries.map((d) =>
-          d.id === editingId
-            ? { ...d, ...form, updated_at: new Date().toISOString() }
-            : d
-        )
-      );
+      await updateDiary(editingId, form);
     }
+    // 保存後に一覧を再取得して画面を更新する
+    const data = await getDiaries();
+    setDiaries(data);
     setIsFormOpen(false);
   };
 
@@ -156,8 +112,10 @@ const TradeDiary = () => {
   };
 
   // --- 削除を確定したとき ---
-  const handleDeleteConfirm = () => {
-    setDiaries(diaries.filter((d) => d.id !== deleteTargetId));
+  const handleDeleteConfirm = async () => {
+    await deleteDiary(deleteTargetId!);
+    const data = await getDiaries();
+    setDiaries(data);
     setIsDeleteOpen(false);
     setDeleteTargetId(null);
   };
