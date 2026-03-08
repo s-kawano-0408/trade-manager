@@ -25,5 +25,6 @@ export type Trade = {
   swap: number;
   magic_number: number;
   comment: string;
+  source: "manual" | "import";
   created_at: string;
 };

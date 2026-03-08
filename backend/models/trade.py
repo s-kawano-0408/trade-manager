@@ -8,7 +8,7 @@ class Trade(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     ticket = Column(Integer, unique=True, nullable=False)
-    symbol = Column(String(20), default="XAUUSD")
+    symbol = Column(String(20), default="GOLD")
     type = Column(Integer, default=0)
     lots = Column(Numeric(10, 2), default=0)
     open_price = Column(Numeric(10, 5), default=0)
@@ -20,4 +20,5 @@ class Trade(Base):
     swap = Column(Numeric(10, 2), default=0)
     magic_number = Column(Integer, default=0)
     comment = Column(Text, default="")
+    source = Column(String(10), default="import")  # "manual" or "import"
     created_at = Column(DateTime, server_default=func.now())
