@@ -3,6 +3,9 @@
 .env.local
 .env.production
 
+# SQLite
+*.db
+
 # Python
 __pycache__/
 *.pyc

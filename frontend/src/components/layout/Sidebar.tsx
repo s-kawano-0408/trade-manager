@@ -7,14 +7,12 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, List, Bot, Calendar, BookOpen } from "lucide-react";
+import { LayoutDashboard, List, BookOpen } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const navItems = [
   { icon: LayoutDashboard, label: "ダッシュボード", href: "/dashboard" },
   { icon: List, label: "トレード一覧", href: "/trades" },
-  { icon: Bot, label: "AI分析", href: "/ai-analysis" },
-  { icon: Calendar, label: "経済指標", href: "/economic-calendar" },
   { icon: BookOpen, label: "トレード日記", href: "/diary" },
 ];
 

@@ -165,3 +165,58 @@ def delete_trade(trade_id: int, db: Session = Depends(get_db)):
     db.delete(target)
     db.commit()
     return {"message": "削除しました"}
+
+# ダッシュボード用サマリーを取得する
+@router.get("/summary")
+def get_summary(db: Session = Depends(get_db)):
+    # 全トレードを取得する
+    trades = db.query(Trade).order_by(Trade.close_time.desc()).all()
+
+    if not trades:
+        return {
+            "total_profit": 0,
+            "win_rate": 0,
+            "trade_count": 0,
+            "daily_profits": [],
+            "recent_trades": [],
+        }
+
+    # 勝率を計算する
+    win_count = sum(1 for t in trades if t.profit > 0)
+    win_rate = round(win_count / len(trades) * 100, 1)
+
+    # 日付ごとの損益を集計する
+    daily_map = {}
+    for t in trades:
+        day = t.close_time.strftime("%Y/%m/%d")
+        net = float(t.profit) + float(t.commission) + float(t.swap)
+        daily_map[day] = daily_map.get(day, 0) + net
+
+    # 日付順に並べる
+    daily_profits = [
+        {"date": day, "profit": round(profit, 0)}
+        for day, profit in sorted(daily_map.items())
+    ]
+
+    # 合計損益を計算する
+    total_profit = sum(d["profit"] for d in daily_profits)
+
+    # 直近5件のトレード
+    recent = trades[:5]
+    recent_trades = [
+        {
+            "id": t.id,
+            "close_time": t.close_time.strftime("%m/%d %H:%M"),
+            "type": t.type,
+            "profit": float(t.profit) + float(t.commission) + float(t.swap),
+        }
+        for t in recent
+    ]
+
+    return {
+        "total_profit": round(total_profit, 0),
+        "win_rate": win_rate,
+        "trade_count": len(trades),
+        "daily_profits": daily_profits,
+        "recent_trades": recent_trades,
+    }
